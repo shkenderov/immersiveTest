@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AR.js</title>
+
+<script type='text/javascript' src='dist/bundle.js' ></script>
+</head>
+<body onload="main()">
+<div id="menu" style="height: 100vh;width: 100%;background-color: black;">
+	<h1>WELCOME TO THE TREASURE HUNT GAME</h1>
+	<form>
+		<label for="name">Name:</label>
+		<input type="text" id="name" name="name"><br>
+		<input type="submit" value="Start">
+	</form>
+</div>
+<a-scene style="display: none;" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+	<a-camera gps-projected-camera rotation-reader></a-camera>
+	<!--<a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/dem/{z}/{x}/{y}.png' osm3d='url: https://hikar.org/webapp/map/{z}/{x}/{y}.json?outProj=4326' peakfinder></a-entity>-->
+	<a-entity geometry='primitive: sphere' material='color: red' position='0 0 -5'>
+	</a-entity>
+</a-scene>
+
+</body>
+</html>
