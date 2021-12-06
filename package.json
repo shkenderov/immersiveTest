@@ -4,8 +4,7 @@
         "aframe": "^1.2.0",
         "aframe-look-at-component": "^1.0.0",
         "aframe-osm-3d": "^0.5.1",
-        "node-polyfill-webpack-plugin": "^1.1.4",
-        "jquery": "^3.2.1"
+        "node-polyfill-webpack-plugin": "^1.1.4"
     },
     "devDependencies": {
         "webpack": "^5.64.4",
