@@ -2,8 +2,13 @@
 <html>
 <head>
 <title>AR.js</title>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+crossorigin=""/>
 <script type='text/javascript' src='dist/bundle.js' ></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+crossorigin=""></script>
 <style>
 	h1   {color: white;}
 	h2   {color: white;}
@@ -15,27 +20,27 @@
 		<h2>Nickname:</h2>
 		<input type="text" id="name" name="name"><br>
 		<button id="startBtn" >Start</button>
+
+		<div id="map1" style="width:800px; height:600px"> </div>
 </div>
-<a-scene webxr='referenceSpaceType: local-floor; requiredFeatures:hit-test,local-floor;' scene style="visibility: hidden;" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true' >
-	<a-assets timeout="30000">
-        <!-- Model source: https://sketchfab.com/3d-models/spinosaurus-2135501583704537907645bf723685e7
-             Model author: https://sketchfab.com/VapTor
-             Model license: CC Attribution -->
-        <a-asset-item id="spinosaurus" src="https://cdn.glitch.com/324a5290-5aa7-4efc-92d6-ae0736433b12%2Fspinosaurus.glb" response-type="arraybuffer"></a-asset-item>
-         <a-asset-item id="reticle"
-                      src="reticle.gltf"
-                      response-type="arraybuffer"></a-asset-item>
-      </a-assets>
+<a-scene  scene style="visibility: hidden;" arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true' >
+	
 	  <a-entity id="dino" position="-1 0 -2" scale="0.1 0.1 0.1">
 		<a-entity position="0 2.15 0" rotation="0 55 0"
 		gltf-model="#spinosaurus"></a-entity>
   </a-entity>
-	<a-camera gps-projected-camera rotation-reader camera ></a-camera>
+	<a-camera gps-projected-camera rotation-reader camera >
+		<a-box id="navbox"  material='color: white' scale='0.5 0.5 0.5' position='0 2 -3'></a-box>
+
+	</a-camera>
 	<!--<a-entity terrarium-dem='zoom: 12; url: https://hikar.org/webapp/dem/{z}/{x}/{y}.png' osm3d='url: https://hikar.org/webapp/map/{z}/{x}/{y}.json?outProj=4326' peakfinder></a-entity>-->
 	<a-box id="box"  material='color: red' scale='1 1 1' startbox></a-box>
-	<a-box id="box2" material='color: red' scale='1 1 1' box2></a-box>
-	<a-box id="box3"  material='color: red' scale='1 1 1' box3></a-box>
-	<a-box id="box4"  material='color: green' scale='1 1 1' box3></a-box>
+	<a-entity id="text1" text='value: Hello World; align :center' scale='100 100 100' look-at='[camera]'></a-entity>
+
+
+	<a-box id="box2" material='color: red' scale='1 1 1' ></a-box>
+	<a-box id="box3"  material='color: red' scale='1 1 1' ></a-box>
+	<a-box id="box4"  material='color: green' scale='1 1 1' ></a-box>
 
 	
 </a-scene>

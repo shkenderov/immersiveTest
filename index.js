@@ -2,13 +2,82 @@ import '@ar-js-org/ar.js';
 import 'aframe-look-at-component';
 import 'aframe-osm-3d';
 import { GoogleProjection } from 'jsfreemaplib';
+//MAP
+const map = L.map ("map1");
 
+const attrib="Map data copyright OpenStreetMap contributors, Open Database Licence";
 
+L.tileLayer
+        ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            { attribution: attrib } ).addTo(map);
+            
+map.setView([50.908,-1.4], 14);
+
+//DATABASE INIT
+let db;
+
+const indexedDB = window.indexedDB;
+let request = indexedDB.open("sessiondb", 1);
+
+request.onsuccess = function(e) {
+    console.log("Successfully opened the database!");
+    db = e.target.result;
+    query();
+}
+request.onerror = function(e) {
+    // Imagine console.log() is a function which fills a div with content
+    console.log("Error opening database: " + e.target.errorCode);
+}
+
+request.onupgradeneeded = e=> {
+    const db = e.target.result; // IDBDatabase instance
+
+    // If upgrading to version >=2, delete the old object store
+    if(db.version >= 2) {
+        db.deleteObjectStore('sessions');
+    }
+
+    const objectStore = db.createObjectStore("sessions", {
+            keyPath:"username"
+    });
+
+    const sessions = [
+        {
+            username:"abv", lat1:'56.2', lon1:'40.5',lat2:'22.2', lon2:'25.5',lat3:'33.2', lon3:'35.5'
+        }
+    ];
+
+    for(let i=0; i<sessions.length; i++) {
+        objectStore.add(sessions[i]);
+    };
+};
+
+function query(){
+    //DATABASE QUERY
+    const username = "abv";
+    const transaction = db.transaction("sessions");
+    const objectStore = transaction.objectStore('sessions');
+    request = objectStore.get(username);
+    request.onsuccess =  e => {
+        if(e.target.result) {
+            alert(e.target.result.username+" "+e.target.result.lat1+" "+e.target.result.lon1+" "+e.target.result.lat2+" "+e.target.result.lon2+" "+e.target.result.lat3+" "+e.target.result.lon3);
+
+        } else {
+            displayMessage('No results!');
+        } 
+    };
+
+    request.onerror = e => {
+        displayMessage(`ERROR ${e.target.errorCode}`);
+    };
+}
     setTimeout(function() { 
         document.querySelector('#startBtn').addEventListener('click', e=> {
     
                 document.querySelector('a-scene').style.visibility="visible";
                 document.querySelector('#menu').style.visibility="hidden";
+                const username=document.getElementById("name").ariaValueMax;
+                const transaction = db.transaction=db.transaction("")
             
         });
     },500);
@@ -16,65 +85,54 @@ import { GoogleProjection } from 'jsfreemaplib';
     var ProgressFlag=0;
     
     AFRAME.registerComponent('scene', {
-        resetVariables: function() {
-            this.xrHitTestSource = null;
-            this.viewerSpace = null;
-            this.floorSpace = null;
-            this.xrSession = null;
-        },
+      
     tick: function(){
-        if(!this.el.sceneEl.is('ar-mode')) return;
-        if(this.xrSession && this.el.sceneEl.frame && this.floorSpace && this.xrHitTestSource) {
-            // Get the current frame
-            const frame = this.el.sceneEl.frame;
-            const hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
-             // If we have any...
-            if(hitTestResults.length > 0) {
-                // Get pose and position of the hit, as the first example
-                const pose = hitTestResults[0].getPose(this.floorSpace);
-                const position = {
-                    x: pose.transform.position.x,
-                    y: pose.transform.position.y,
-                    z: pose.transform.position.z
-                };
-                // Set the reticle's position to the hit position
-                // We use this in the "select" event handler, above
-                this.el.setAttribute('position', position);
-            }
-        }
+        /*const navBox=document.getElementById('navbox');
+        navbox.setAttribute('position', {
+            x: this.camera.getAttribute('position').x,
+            y: 3,
+            z: this.camera.getAttribute('position').z-5 // negate the northing!
+        });*/
         const startBox = document.getElementById('box');
         console.log("PROGRESS: "+ProgressFlag);
             if(navigator.geolocation) {
+                
                 navigator.geolocation.getCurrentPosition (
+                    
                         gpspos=> {
+                            const [e2,n2] = this.merc.project(gpspos.coords.longitude, gpspos.coords.latitude);
+
                             if(ProgressFlag==0) {
                                
 
-                                if(Math.abs( startBox.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( startBox.getAttribute('position').z-this.camera.getAttribute('position').z)<=5){
+                                if(Math.abs( startBox.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( startBox.getAttribute('position').z-this.camera.getAttribute('position').z)<=7){
                                     console.log(startBox.getAttribute('position').x-this.camera.getAttribute('position').x);
                                     
                                     const box2= document.getElementById('box2');
+                                    const text1= document.getElementById('text1');
                                     box2.setAttribute('material', {
                                         color: 'blue'
                                     });
                                     box2.setAttribute('geometry', {
                                         depth:"5",
-                                        height:"5",
-                                        width:"5"
+                                        height:"10",
+                                        width:"7"
                                     });
-                                    const [e2,n2] = this.merc.project(gpspos.coords.longitude, gpspos.coords.latitude);
                                     box2.setAttribute('position', {
                                         x: e2+10,
                                         y: 0,
                                         z: -n2-10 // negate the northing!
                                     });
-                                
-                                       
+                                    text1.setAttribute('position', {
+                                        x: e2+10,
+                                        y: 0,
+                                        z: -n2-10// negate the northing!
+                                    });
                                 ProgressFlag++;                           
                                 }
                             }
                                  if(ProgressFlag==1){
-                                    if(Math.abs( box2.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( box2.getAttribute('position').z-this.camera.getAttribute('position').z)<=5){
+                                    if(Math.abs( box2.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( box2.getAttribute('position').z-this.camera.getAttribute('position').z)<=7){
                                         
                                         const box3= document.getElementById('box3');
                                         box3.setAttribute('material', {
@@ -85,11 +143,10 @@ import { GoogleProjection } from 'jsfreemaplib';
                                             height:"5",
                                             width:"5"
                                         });
-                                        const [e3,n3] = this.merc.project(gpspos.coords.longitude, gpspos.coords.latitude);
                                         box3.setAttribute('position', {
-                                            x: e3+50,
+                                            x: e2+50,
                                             y: 0,
-                                            z: -n3-50 // negate the northing!
+                                            z: -n2-50 // negate the northing!
                                         });
                                         ProgressFlag++;                           
 
@@ -97,7 +154,7 @@ import { GoogleProjection } from 'jsfreemaplib';
      
                                 }
                                 if(ProgressFlag==2){
-                                    if(Math.abs( box3.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( box3.getAttribute('position').z-this.camera.getAttribute('position').z)<=5){
+                                    if(Math.abs( box3.getAttribute('position').x-this.camera.getAttribute('position').x)+Math.abs( box3.getAttribute('position').z-this.camera.getAttribute('position').z)<=7){
                                     
                                         const box4= document.getElementById('box4');
 
@@ -106,11 +163,10 @@ import { GoogleProjection } from 'jsfreemaplib';
                                             height:"5",
                                             width:"5"
                                         });
-                                        const [e4,n4] = this.merc.project(gpspos.coords.longitude, gpspos.coords.latitude);
                                         box4.setAttribute('position', {
-                                            x: e4+100,
+                                            x: e2+100,
                                             y: 0,
-                                            z: -n4-100 // negate the northing!
+                                            z: -n2-100 // negate the northing!
                                         });
                                         this.pause();                        
 
@@ -135,36 +191,11 @@ import { GoogleProjection } from 'jsfreemaplib';
        
     },
     init: function() {
-        this.resetVariables();
+       
+         
 
-        // when session ends set everything to null
-        //this.el.sceneEl.renderer.xr.addEventListener('sessionend', this.resetVariables.bind(this));
-        //this.xrSession = this.el.sceneEl.renderer.xr.getSession();
-        navigator.xr.requestSession("immersive-vr")
-        .then((xrSession) => {
-          xrSession.addEventListener('end', onXRSessionEnded);
-          // Do necessary session setup here.
-          // Begin the session’s animation loop.
-          xrSession.requestAnimationFrame(onXRAnimationFrame);
-        }).catch(function(error) {
-          // "immersive-vr" sessions are not supported
-          console.warn("'immersive-vr' isn't supported, or an error occurred activating VR!");
-        });
-        this.xrSession.addEventListener('select', xrInputSourceEvent => {
-            // Set 'pos' to the RETICLE position (this component is 
-            // attached to the reticle so this.el will represent the
-            // reticle). The reticle position is determined in tick(), 
-            // below
-            const pos = this.el.getAttribute('position');
-        
-            // Set dino to the RETICLE position
-            document.getElementById('dino').setAttribute('position' , {
-                x: pos.x,
-                y: pos.y,
-                z: pos.z
-                });
 
-        });
+     
         const startBox = document.getElementById('box');
 
         this.merc = new GoogleProjection();
